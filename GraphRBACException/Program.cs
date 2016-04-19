@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Azure;
 using Microsoft.Azure.Graph.RBAC;
 using Microsoft.Azure.Graph.RBAC.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -42,11 +43,13 @@ namespace GraphRBACException
                 IdentifierUris = new List<string> {"http://www.mydomain.com/" + Guid.NewGuid()},
                 PasswordCredentials = new List<PasswordCredential>
                 {
-                    new PasswordCredential(
-                        keyId: Guid.NewGuid().ToString(),
-                        value: "1234",
-                        startDate: DateTime.Now,
-                        endDate: DateTime.Now.AddYears(1))
+                    new PasswordCredential
+                    {
+                        KeyId = Guid.NewGuid(),
+                        Value = "1234",
+                        StartDate = DateTime.Now,
+                        EndDate = DateTime.Now.AddYears(1)
+                    }
                 }
             };
 
@@ -55,7 +58,7 @@ namespace GraphRBACException
                 try
                 {
                     var app = client.Application.Create(appInfo); // Throws a Serialization Exception, but the application is created on AAD
-                    return app.AppId;
+                    return app.Application.AppId;
                 }
                 catch (SerializationException ex)  // This is a workaround - the application was created!
                 {
@@ -68,11 +71,15 @@ namespace GraphRBACException
 
         private static GraphRbacManagementClient CreateManagementClient(string userToken)
         {
-            return new GraphRbacManagementClient(new TokenCredentials(userToken))
-            {
-                SubscriptionId = SubscriptionId,
-                TenantID = TenantId
-            };
+            return new GraphRbacManagementClient(TenantId, new TokenCloudCredentials(SubscriptionId, userToken));
+
+            //return new GraphRbacManagementClient(TenantId, new TokenCloudCredentials(userToken));
+
+            //return new GraphRbacManagementClient(TenantId, new TenantCloudCredentials
+            //{
+            //    TenantID = TenantId,
+            //    Token = userToken
+            //});
         }
     }
 }
