@@ -29,7 +29,7 @@ namespace GraphRBACException
         {
             var authContext = new AuthenticationContext($"https://login.microsoftonline.com/{TenantId}");
             var platformParams = new PlatformParameters(PromptBehavior.Always);
-            var authResult = authContext.AcquireTokenAsync("https://management.core.windows.net/", ClientId, new Uri(RedirectUri), platformParams).Result;
+            var authResult = authContext.AcquireTokenAsync("https://graph.windows.net/", ClientId, new Uri(RedirectUri), platformParams).Result;
             return authResult.AccessToken;
         }
 
@@ -72,14 +72,6 @@ namespace GraphRBACException
         private static GraphRbacManagementClient CreateManagementClient(string userToken)
         {
             return new GraphRbacManagementClient(TenantId, new TokenCloudCredentials(SubscriptionId, userToken));
-
-            //return new GraphRbacManagementClient(TenantId, new TokenCloudCredentials(userToken));
-
-            //return new GraphRbacManagementClient(TenantId, new TenantCloudCredentials
-            //{
-            //    TenantID = TenantId,
-            //    Token = userToken
-            //});
         }
     }
 }
